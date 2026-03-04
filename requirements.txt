@@ -1,0 +1,13 @@
+numpy<2.0
+pandas
+scikit-learn
+tensorflow==2.6.0
+keras==2.6.*
+protobuf<3.20
+Pillow
+opencv-python
+matplotlib
+seaborn
+plotly
+tqdm
+flask
