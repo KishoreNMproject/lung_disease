@@ -11,3 +11,5 @@ seaborn
 plotly
 tqdm
 flask
+ipython
+notebook
