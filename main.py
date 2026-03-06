@@ -16,19 +16,19 @@ def index():
 @app.route('/upload',methods=['POST','GET'])
 def upload():
     if request.method == 'POST':
-        #classes = ['Covid', 'Non Covid']
-        classes = ['NORMAL', 'TUBERCULOSIS', 'PNEUMONIA', 'COVID19']
+        LABELS = ['COVID-19', 'Normal', 'Pneumonia-Bacterial', 'Pneumonia-Viral']
+        IMAGE_SIZE = 128
         file1 = request.files['filename']
         imgfile = os.path.join(app.config['UPLOAD_FOLDER'], file1.filename)
         file1.save(imgfile)
         model = load_model('model.hdf5')
-        img_ = image.load_img(imgfile, target_size=(128, 128, 3))
+        img_ = image.load_img(imgfile, target_size=(IMAGE_SIZE, IMAGE_SIZE))
         img_array = image.img_to_array(img_)
         img_processed = np.expand_dims(img_array, axis=0)
-        img_processed /= 255.
+        img_processed = img_processed / img_processed.max()
         prediction = model.predict(img_processed)
         index = np.argmax(prediction)
-        result = str(classes[index]).title()
+        result = LABELS[index]
         return render_template('index.html', msg = result, src = imgfile, view = 'style=display:block', view1 = 'style=display:none')
 
 if __name__ == '__main__':
