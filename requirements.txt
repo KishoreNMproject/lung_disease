@@ -1,13 +1,22 @@
 numpy<2.0
 pandas
 scikit-learn
-tensorflow==2.6.0
-keras==2.6.*
-protobuf<3.20
-Pillow
-opencv-python
 matplotlib
 seaborn
+Pillow
+opencv-python
 plotly
 tqdm
 flask
+ipython
+matplotlib-inline<0.2
+protobuf<3.20
+h5py
+
+# Windows: use the DirectML-compatible TensorFlow CPU build.
+tensorflow-cpu==2.10.*; platform_system == "Windows" and python_version < "3.11"
+tensorflow-directml-plugin; platform_system == "Windows" and python_version < "3.11"
+
+# Non-Windows: use the standard TensorFlow package.
+tensorflow==2.10.*; platform_system != "Windows" and python_version < "3.11"
+keras==2.10.*; python_version < "3.11"
