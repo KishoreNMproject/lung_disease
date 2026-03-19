@@ -2,311 +2,641 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lung Disease Detection</title>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg: #f4efe6;
-            --panel: rgba(255, 251, 245, 0.92);
-            --panel-strong: #fff9f2;
-            --ink: #1f2933;
-            --muted: #5f6c7b;
-            --line: rgba(31, 41, 51, 0.12);
-            --accent: #0f766e;
-            --accent-soft: rgba(15, 118, 110, 0.12);
-            --accent-strong: #115e59;
-            --danger: #b42318;
-            --shadow: 0 20px 45px rgba(51, 65, 85, 0.14);
+            --bg-color: #0b1116;
+            --panel-bg: #121c25;
+            --panel-border: #1a2733;
+            --text-color: #d1d5db;
+            --text-heading: #e5e7eb;
+            --accent-green: #34d399;
+            --accent-green-glow: rgba(52, 211, 153, 0.4);
+            --secondary-green: #10b981;
+            --upload-bg: #1a222a;
+            --button-bg: #064e3b;
+            --button-hover: #065f46;
+            --border-radius: 16px;
         }
 
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             min-height: 100vh;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--ink);
-            background:
-                radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 32%),
-                radial-gradient(circle at bottom right, rgba(180, 131, 62, 0.16), transparent 30%),
-                linear-gradient(135deg, #f6f1e8, #e6f1ef);
-        }
-
-        .page {
-            width: min(1120px, calc(100% - 32px));
-            margin: 32px auto;
-        }
-
-        .hero {
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 24px;
-            align-items: stretch;
-        }
-
-        .panel {
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: 24px;
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(12px);
-        }
-
-        .hero-copy {
-            padding: 36px;
-        }
-
-        .eyebrow {
-            display: inline-flex;
-            padding: 8px 14px;
-            border-radius: 999px;
-            background: var(--accent-soft);
-            color: var(--accent-strong);
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        h1 {
-            margin: 18px 0 12px;
-            font-size: clamp(2rem, 4vw, 3.6rem);
-            line-height: 1.05;
-        }
-
-        .lead {
-            margin: 0;
-            max-width: 60ch;
-            color: var(--muted);
-            font-size: 1rem;
-            line-height: 1.7;
-        }
-
-        .classes {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 24px;
+            align-items: stretch;
+            justify-content: center;
+            padding: 15px;
         }
 
-        .classes span {
-            padding: 10px 14px;
-            border-radius: 999px;
-            border: 1px solid rgba(15, 118, 110, 0.18);
-            background: rgba(255, 255, 255, 0.72);
-            font-size: 0.94rem;
+        .main-container {
+            width: 100%;
+            max-width: 1600px;
+            display: grid;
+            grid-template-columns: minmax(240px, 1fr) minmax(300px, 1.4fr) minmax(380px, 2fr);
+            gap: 15px;
+            height: calc(100vh - 30px);
+            min-height: 550px;
+            border: 2px solid #1a3c40;
+            border-radius: 20px;
+            padding: 15px;
+            background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.05), transparent 40%), var(--bg-color);
+            box-shadow: 0 0 50px rgba(16, 185, 129, 0.05);
+            margin: auto;
         }
 
-        .upload-card {
-            padding: 28px;
+        /* Generic Panel Styles */
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .panel-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #9ca3af;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* --- Left Panel: Upload --- */
+        .left-panel {
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            box-shadow: 0 0 20px rgba(52, 211, 153, 0.05);
+            justify-content: center;
+        }
+        
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+            height: 100%;
+        }
+
+        .upload-box {
+            background-color: var(--upload-bg);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            padding: 20px 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        .upload-card h2 {
-            margin: 0 0 10px;
-            font-size: 1.35rem;
+        .upload-box:hover {
+            border-color: var(--accent-green);
+            background-color: rgba(52, 211, 153, 0.05);
         }
 
-        .upload-card p {
-            margin: 0 0 20px;
-            color: var(--muted);
-            line-height: 1.6;
-        }
-
-        form {
-            display: grid;
-            gap: 14px;
-        }
-
-        .file-input {
-            width: 100%;
-            padding: 16px;
-            border: 1px dashed rgba(15, 118, 110, 0.35);
-            border-radius: 16px;
-            background: var(--panel-strong);
-            color: var(--ink);
-        }
-
-        button {
-            border: 0;
-            border-radius: 14px;
-            padding: 14px 18px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.18s ease, box-shadow 0.18s ease;
-            box-shadow: 0 16px 24px rgba(15, 118, 110, 0.22);
-        }
-
-        button:hover {
-            transform: translateY(-1px);
-        }
-
-        .error {
-            margin-top: 18px;
-            padding: 14px 16px;
-            border-radius: 14px;
-            background: rgba(180, 35, 24, 0.08);
-            border: 1px solid rgba(180, 35, 24, 0.18);
-            color: var(--danger);
-        }
-
-        .results {
-            display: grid;
-            grid-template-columns: minmax(260px, 0.9fr) minmax(320px, 1.1fr);
-            gap: 24px;
-            margin-top: 24px;
-        }
-
-        .preview,
-        .scores {
-            padding: 24px;
-        }
-
-        .preview img {
-            display: block;
-            width: 100%;
-            border-radius: 18px;
-            border: 1px solid var(--line);
-            background: #fff;
-        }
-
-        .kicker {
-            margin: 0 0 8px;
-            color: var(--muted);
-            font-size: 0.86rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        .prediction {
-            margin: 0;
-            font-size: clamp(1.75rem, 3vw, 2.5rem);
-        }
-
-        .confidence {
-            margin: 8px 0 0;
-            color: var(--muted);
-            font-size: 1rem;
-        }
-
-        .score-list {
-            margin-top: 22px;
-            display: grid;
-            gap: 14px;
-        }
-
-        .score-row {
-            display: grid;
-            gap: 8px;
-        }
-
-        .score-head {
+        .upload-icons {
             display: flex;
-            justify-content: space-between;
-            gap: 16px;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            color: #6b7280;
+        }
+
+        .upload-box h3 {
+            font-size: 0.9rem;
+            color: #9ca3af;
+            font-weight: 500;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-chosen-btn {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            color: #d1d5db;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: fit-content;
+            margin: 10px auto 0;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(180deg, var(--secondary-green) 0%, var(--button-bg) 100%);
+            border: 1px solid var(--accent-green);
+            color: white;
+            font-size: 1rem;
             font-weight: 600;
+            padding: 12px;
+            width: 100%;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.2);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .analyze-btn:hover {
+            box-shadow: 0 0 25px rgba(52, 211, 153, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* --- Center Panel: Image --- */
+        .center-panel {
+            background-color: black;
+            border: 1px solid #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .center-panel-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .scan-image-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .scan-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        /* Toggle Switches */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 20px;
+            background-color: #374151;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 0 5px var(--accent-green-glow);
+        }
+
+        .toggle-container.active .toggle-switch::after {
+            left: 22px;
+        }
+
+        /* --- Right Panel: Results --- */
+        .right-panel {
+            border: 1px solid #1f2937;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .top-prediction {
+            margin-bottom: 5px;
+        }
+
+        .prediction-class {
+            font-size: clamp(2rem, 3.5vw, 2.5rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            margin: 5px 0;
+            line-height: 1.1;
+        }
+
+        .confidence-text {
+            color: #9ca3af;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        /* Radar Chart Area */
+        .radar-container {
+            flex: 1;
+            min-height: 160px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin: 5px 0;
+        }
+
+        .radar-canvas-wrapper {
+            flex: 1;
+            position: relative;
+            height: 100%;
+            min-height: 160px;
+        }
+
+        /* Tooltip style card overlaying radar chart on right */
+        .info-card {
+            background-color: rgba(31, 41, 55, 0.7);
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.75rem;
+            color: #d1d5db;
+            backdrop-filter: blur(10px);
+            width: 120px;
+            flex-shrink: 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        
+        .info-card h4 {
+            color: white;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        /* Bar Chart Area */
+        .bar-chart-container {
+            height: 90px;
+            margin-top: auto;
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            padding-bottom: 25px; /* space for labels */
+        }
+
+        .bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
+            position: relative;
         }
 
         .bar {
-            height: 12px;
-            border-radius: 999px;
+            width: 100%;
+            background-color: rgba(52, 211, 153, 0.2);
+            border-radius: 4px 4px 0 0;
+            transition: height 0.8s ease-out;
+            position: relative;
+        }
+        
+        .bar.active {
+            background-color: var(--accent-green);
+            box-shadow: 0 0 15px var(--accent-green-glow);
+        }
+        
+        .bar-value {
+            position: absolute;
+            top: -20px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.7rem;
+            color: white;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -22px;
+            font-size: 0.65rem;
+            color: #9ca3af;
+            text-align: center;
+            width: 100%;
+            white-space: nowrap;
             overflow: hidden;
-            background: rgba(15, 118, 110, 0.12);
+            text-overflow: ellipsis;
         }
 
-        .bar-fill {
-            height: 100%;
-            border-radius: inherit;
-            background: linear-gradient(90deg, #14b8a6, #0f766e);
+        .error-message {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            text-align: center;
         }
 
-        @media (max-width: 860px) {
-            .hero,
-            .results {
+        /* SVG Icons */
+        svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
                 grid-template-columns: 1fr;
+                height: auto;
             }
-
-            .page {
-                width: min(100% - 20px, 1120px);
-                margin: 20px auto;
-            }
-
-            .hero-copy,
-            .upload-card,
-            .preview,
-            .scores {
-                padding: 22px;
+            .center-panel {
+                min-height: 400px;
             }
         }
     </style>
 </head>
 <body>
-    <main class="page">
-        <section class="hero">
-            <div class="panel hero-copy">
-                <span class="eyebrow">DenseNet201 Inference</span>
-                <h1>Lung Disease Detection for Seven Chest X-ray Classes</h1>
-                <p class="lead">
-                    Upload a chest X-ray image to run the same seven-way classifier described in the training notebook.
-                    The app uses DenseNet preprocessing and returns a ranked probability for each supported class.
-                </p>
-                <div class="classes">
-                    {% for label in class_labels %}
-                        <span>{{ label }}</span>
-                    {% endfor %}
-                </div>
-            </div>
 
-            <div class="panel upload-card">
-                <h2>Upload X-ray</h2>
-                <p>Accepted formats: PNG, JPG, JPEG, BMP, and WEBP. Large files over 16 MB are rejected.</p>
-                <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
-                    <input class="file-input" type="file" name="filename" accept=".png,.jpg,.jpeg,.bmp,.webp,image/*" required>
-                    <button type="submit">Analyze Image</button>
-                </form>
+    <div class="main-container">
 
-                {% if error %}
-                    <div class="error">{{ error }}</div>
-                {% endif %}
-            </div>
-        </section>
-
-        {% if predictions %}
-            <section class="results">
-                <div class="panel preview">
-                    <p class="kicker">Uploaded Scan</p>
-                    <img src="{{ image_url }}" alt="Uploaded chest X-ray preview">
+        <!-- LEFT PANEL -->
+        <div class="panel left-panel">
+            <div style="position: absolute; top: 15px; left: 15px; width: 8px; height: 8px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px #fff;"></div>
+            
+            <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" class="upload-section">
+                <div class="panel-header" style="justify-content: center; margin-bottom: 0;">
+                    <span>Upload New Scan</span>
                 </div>
 
-                <div class="panel scores">
-                    <p class="kicker">Top Prediction</p>
-                    <h2 class="prediction">{{ predicted_label }}</h2>
-                    <p class="confidence">Confidence: {{ "%.2f"|format(predicted_confidence) }}%</p>
-
-                    <div class="score-list">
-                        {% for item in predictions %}
-                            <div class="score-row">
-                                <div class="score-head">
-                                    <span>{{ item.display_label }}</span>
-                                    <span>{{ "%.2f"|format(item.percentage) }}%</span>
-                                </div>
-                                <div class="bar">
-                                    <div class="bar-fill" style="width: {{ "%.4f"|format(item.percentage) }}%"></div>
-                                </div>
-                            </div>
-                        {% endfor %}
+                <div class="upload-box" id="drop-zone">
+                    <input type="file" name="filename" id="file-input" class="file-input" accept=".png,.jpg,.jpeg,.bmp,.webp,image/*" required onchange="updateFileName(this)">
+                    
+                    <div class="upload-icons">
+                        <svg viewBox="0 0 24 24"><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>
+                        <svg viewBox="0 0 24 24"><path d="M14,13V17H10V13H7L12,8L17,13H14M19.35,10.03C18.67,6.59 15.64,4 12,4C9.11,4 6.6,5.64 5.35,8.03C2.34,8.36 0,10.9 0,14A6,6 0 0,0 6,20H19A5,5 0 0,0 24,15C24,12.36 21.95,10.22 19.35,10.03Z" /></svg>
+                        <svg viewBox="0 0 24 24"><path d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2Z" /></svg>
+                    </div>
+                    
+                    <h3>Supported: PNG, JPG,<br>JPEG, BMP, WEBP<br>(Max 16MB)</h3>
+                    
+                    <div class="file-chosen-btn" style="margin-top: 15px;">
+                        <svg style="width:16px; height:16px" viewBox="0 0 24 24"><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>
+                        <span id="file-name-display">File chosen</span>
                     </div>
                 </div>
-            </section>
-        {% endif %}
-    </main>
+
+                <button type="submit" class="analyze-btn">Analyze</button>
+
+                {% if error %}
+                    <div class="error-message">{{ error }}</div>
+                {% endif %}
+            </form>
+        </div>
+
+
+        <!-- CENTER PANEL -->
+        <div class="panel center-panel">
+            <div class="panel-header center-panel-header">
+                <span>Uploaded Scan</span>
+                {% if image_url %}
+                <div class="toggle-container" onclick="toggleGradCam(this)">
+                    <span>Grad-CAM</span>
+                    <div class="toggle-switch"></div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="scan-image-container">
+                {% if image_url %}
+                    <img src="{{ image_url }}" alt="Uploaded X-ray" class="scan-image" id="scan-display" data-original="{{ image_url }}" data-heatmap="{{ heatmap_url }}">
+                {% else %}
+                    <div style="color: #4b5563; border: 2px dashed #374151; padding: 50px; border-radius: 12px; height: 80%; display: flex; align-items: center;">
+                        Upload an image to view scan
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if image_url %}
+            <div style="position: absolute; bottom: 20px; right: 20px;" class="toggle-container" onclick="document.querySelector('.center-panel-header .toggle-container').click()">
+                <span>Grad-CAM heatmap</span>
+                <div class="toggle-switch"></div>
+            </div>
+            {% endif %}
+        </div>
+
+
+        <!-- RIGHT PANEL -->
+        <div class="panel right-panel">
+            <div class="panel-header">
+                <span>Top Prediction:</span>
+            </div>
+
+            <div class="top-prediction">
+                {% if predicted_label %}
+                    <div class="prediction-class">{{ predicted_label }}</div>
+                    <div class="confidence-text">Confidence: <span style="color:white">{{ "%.2f"|format(predicted_confidence) }}%</span></div>
+                {% else %}
+                    <div class="prediction-class" style="color:#6b7280; font-size: 2rem;">Awaiting Upload</div>
+                    <div class="confidence-text">Confidence: -</div>
+                {% endif %}
+            </div>
+
+            {% if predictions %}
+            <div class="radar-container">
+                <div class="radar-canvas-wrapper">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                
+                <div class="info-card" id="diseaseInfo">
+                    <h4 id="infoTitle">{{ predicted_label }}</h4>
+                    <p id="infoDesc">{{ predicted_label }} is commonly indicated by the features highlighted in the Grad-CAM mappings in a classic chest radiograph presentation.</p>
+                </div>
+            </div>
+
+            <!-- Custom Bar Chart (matching CSS design) -->
+            <div class="bar-chart-container">
+                {% for item in predictions %}
+                <div class="bar-wrapper" title="{{ item.display_label }}: {{ "%.2f"|format(item.percentage) }}%">
+                    <div class="bar {% if loop.index0 == 0 %}active{% endif %}" data-height="{{ item.percentage }}">
+                        <div class="bar-value">{{ "%.1f"|format(item.percentage) }}</div>
+                    </div>
+                    <div class="bar-label">{{ item.display_label|truncate(12, True, '') }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Placeholder for state before upload -->
+            <div class="radar-container" style="display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px; color:#4b5563;">
+                 <svg style="width:100px; height:100px; opacity:0.2;" viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6V11L16.29,13.54L15.54,14.8L10.5,11.8V6H12Z" /></svg>
+                 <p>Upload a scan to view detailed analysis</p>
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <!-- Script handling Chart.js and File Input -->
+    {% if predictions %}
+    <script type="application/json" id="predictions-data">
+        {{ predictions | tojson | safe }}
+    </script>
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Apply bar heights
+            document.querySelectorAll('.bar').forEach(bar => {
+                if(bar.dataset.height) {
+                    bar.style.height = bar.dataset.height + '%';
+                }
+            });
+
+            const dataElement = document.getElementById('predictions-data');
+            if (dataElement) {
+                const rawData = JSON.parse(dataElement.textContent);
+                
+                const labels = rawData.map(d => d.display_label.replace(/\n/g, ' '));
+                const dataValues = rawData.map(d => d.percentage);
+
+                const ctx = document.getElementById('radarChart').getContext('2d');
+                
+                Chart.defaults.color = '#9ca3af';
+                Chart.defaults.font.family = "'Inter', sans-serif";
+                
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Confidence (%)',
+                            data: dataValues,
+                            backgroundColor: 'rgba(52, 211, 153, 0.2)',
+                            borderColor: '#34d399',
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#34d399',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#34d399',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)',
+                                    circular: true
+                                },
+                                pointLabels: {
+                                    color: '#d1d5db',
+                                    font: {
+                                        size: 10
+                                    }
+                                },
+                                ticks: {
+                                    display: false,
+                                    min: 0,
+                                    max: 100
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                titleColor: '#fff',
+                                bodyColor: '#34d399',
+                                displayColors: false,
+                                padding: 10,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.raw.toFixed(1) + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        function toggleGradCam(element) {
+            const img = document.getElementById('scan-display');
+            if (!img || !img.dataset.heatmap) return;
+            
+            // Toggle all Grad-CAM switches on the page to stay synchronized
+            const allToggles = document.querySelectorAll('.toggle-container');
+            const isActive = !element.classList.contains('active');
+            
+            allToggles.forEach(toggle => {
+                if(isActive) toggle.classList.add('active');
+                else toggle.classList.remove('active');
+            });
+            
+            // Change image source
+            if (isActive) {
+                img.src = img.dataset.heatmap;
+            } else {
+                img.src = img.dataset.original;
+            }
+        }
+
+        function updateFileName(input) {
+            const display = document.getElementById('file-name-display');
+            if (input.files && input.files.length > 0) {
+                display.textContent = input.files[0].name;
+            } else {
+                display.textContent = "File chosen";
+            }
+        }
+    </script>
 </body>
 </html>

@@ -2,14 +2,16 @@ from functools import lru_cache
 from pathlib import Path
 from uuid import uuid4
 
-import numpy as np
-from flask import Flask, redirect, render_template, request, url_for
-from tensorflow.keras.applications import DenseNet201
-from tensorflow.keras.applications.densenet import preprocess_input
-from tensorflow.keras.layers import BatchNormalization, Dense, Dropout, GlobalAveragePooling2D, Input
-from tensorflow.keras.models import Model, load_model
-from tensorflow.keras.preprocessing import image
-from werkzeug.utils import secure_filename
+import numpy as np  # type: ignore
+from flask import Flask, redirect, render_template, request, url_for  # type: ignore
+from tensorflow.keras.applications import DenseNet201  # type: ignore
+from tensorflow.keras.applications.densenet import preprocess_input  # type: ignore
+from tensorflow.keras.layers import BatchNormalization, Dense, Dropout, GlobalAveragePooling2D, Input  # type: ignore
+from tensorflow.keras.models import Model, load_model  # type: ignore
+from tensorflow.keras.preprocessing import image  # type: ignore
+from werkzeug.utils import secure_filename  # type: ignore
+import tensorflow as tf  # type: ignore
+import cv2  # type: ignore
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -111,7 +113,54 @@ def predict_image(image_path):
         "top_probability": float(probabilities[top_index]),
         "top_percentage": float(probabilities[top_index] * 100),
         "predictions": predictions,
+        "top_index": top_index,
+        "batch": batch
     }
+
+def generate_gradcam(image_path, model, batch, top_index, save_path):
+    # Find last conv layer
+    last_conv_layer_name = None
+    for layer in reversed(model.layers):
+        try:
+            sh = layer.output_shape
+            if isinstance(sh, list):
+                sh = sh[0]
+            if len(sh) == 4:
+                last_conv_layer_name = layer.name
+                break
+        except Exception:
+            pass
+            
+    if not last_conv_layer_name:
+        return
+        
+    grad_model = Model(
+        inputs=model.inputs,
+        outputs=[model.get_layer(last_conv_layer_name).output, model.output]
+    )
+    
+    with tf.GradientTape() as tape:
+        last_conv_layer_output, preds = grad_model(batch)
+        class_channel = preds[:, top_index]
+
+    grads = tape.gradient(class_channel, last_conv_layer_output)
+    pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
+    
+    last_conv_layer_output = last_conv_layer_output[0]
+    heatmap = last_conv_layer_output @ pooled_grads[..., tf.newaxis]
+    heatmap = tf.squeeze(heatmap)
+    heatmap = tf.maximum(heatmap, 0) / tf.math.reduce_max(heatmap)
+    heatmap = heatmap.numpy()
+    
+    # Save the superimposed image
+    img = cv2.imread(str(image_path))
+    heatmap_resized = cv2.resize(heatmap, (img.shape[1], img.shape[0]))
+    heatmap_colored = np.uint8(255 * heatmap_resized)
+    heatmap_colored = cv2.applyColorMap(heatmap_colored, cv2.COLORMAP_JET)
+    
+    superimposed_img = heatmap_colored * 0.4 + img
+    cv2.imwrite(str(save_path), superimposed_img)
+
 
 
 @app.route("/")
@@ -146,6 +195,13 @@ def upload():
 
     try:
         result = predict_image(saved_path)
+        
+        # Generate Grad-CAM Heatmap
+        heatmap_name = f"cam_{unique_name}"
+        heatmap_path = UPLOAD_FOLDER / heatmap_name
+        model = get_model()
+        generate_gradcam(saved_path, model, result["batch"], result["top_index"], heatmap_path)
+
     except Exception as exc:
         return render_template(
             "index.html",
@@ -156,6 +212,7 @@ def upload():
     return render_template(
         "index.html",
         image_url=url_for("static", filename=f"uploads/{unique_name}"),
+        heatmap_url=url_for("static", filename=f"uploads/{heatmap_name}"),
         predictions=result["predictions"],
         predicted_label=result["top_display_label"],
         predicted_confidence=result["top_percentage"],
