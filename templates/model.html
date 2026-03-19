@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lung Disease Detection</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Segoe UI;
+    background:#0f1720;
+    color:white;
+}
+
+.container{
+    display:flex;
+    height:100vh;
+    padding:20px;
+    gap:20px;
+}
+
+/* LEFT PANEL */
+
+.left-panel{
+    width:20%;
+    background:#111827;
+    border-radius:12px;
+    padding:20px;
+    box-shadow:0 0 20px #000;
+}
+
+.upload-box{
+    border:2px dashed #374151;
+    border-radius:10px;
+    padding:30px;
+    text-align:center;
+    margin-top:20px;
+}
+
+.upload-box input{
+    margin-top:10px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:20px;
+    border:none;
+    border-radius:8px;
+    background:#22c55e;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+/* CENTER PANEL */
+
+.center-panel{
+    width:50%;
+    background:#111827;
+    border-radius:12px;
+    padding:20px;
+}
+
+.scan-image{
+    width:100%;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+/* RIGHT PANEL */
+
+.right-panel{
+    width:30%;
+    background:#111827;
+    border-radius:12px;
+    padding:20px;
+}
+
+.prediction{
+    font-size:32px;
+    color:#22c55e;
+}
+
+.confidence{
+    margin-top:5px;
+    color:#9ca3af;
+}
+
+.chart{
+    margin-top:30px;
+}
+
+.bar{
+    height:12px;
+    background:#22c55e;
+    margin:10px 0;
+    border-radius:6px;
+}
+
+.label{
+    font-size:14px;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+<!-- LEFT PANEL -->
+
+<div class="left-panel">
+
+<h3>Upload New Scan</h3>
+
+<div class="upload-box">
+<input type="file">
+<p>PNG JPG JPEG BMP WEBP</p>
+</div>
+
+<button>Analyze</button>
+
+</div>
+
+
+<!-- CENTER PANEL -->
+
+<div class="center-panel">
+
+<h3>Uploaded Scan</h3>
+
+<img class="scan-image" src="lung_scan.jpg">
+
+</div>
+
+
+<!-- RIGHT PANEL -->
+
+<div class="right-panel">
+
+<h3>Top Prediction</h3>
+
+<div class="prediction">Covid19</div>
+
+<div class="confidence">Confidence : 68.5%</div>
+
+<div class="chart">
+
+<div class="label">Covid19</div>
+<div class="bar" style="width:68%"></div>
+
+<div class="label">Bacterial Pneumonia</div>
+<div class="bar" style="width:22%"></div>
+
+<div class="label">Tuberculosis</div>
+<div class="bar" style="width:15%"></div>
+
+<div class="label">Normal</div>
+<div class="bar" style="width:5%"></div>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
