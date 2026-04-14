@@ -7,3 +7,8 @@ __pycache__/
 static/file/*
 outputs.zip
 checkpoints/*.h5
+chatgpt_docx_ppt_handoff_prompt.txt
+*.pdf
+*.docx
+*.doc
+*.ppt
