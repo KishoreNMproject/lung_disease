@@ -1,0 +1,17 @@
+.git
+.gitignore
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.db
+.sqlite3
+.venv
+venv
+.vscode
+.idea
+*.ipynb
+checkpoints/
+artifacts/
+static/uploads/*
+!static/uploads/.gitkeep

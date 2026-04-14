@@ -14,6 +14,8 @@ import tensorflow as tf  # type: ignore
 import cv2  # type: ignore
 
 
+import os
+
 BASE_DIR = Path(__file__).resolve().parent
 UPLOAD_FOLDER = BASE_DIR / "static" / "uploads"
 IMAGE_SIZE = (224, 224)
@@ -33,6 +35,7 @@ UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = str(UPLOAD_FOLDER)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
+app.config["SECRET_KEY"] = os.urandom(24)
 
 
 def format_label(name):
@@ -226,4 +229,5 @@ def upload_redirect():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 7860))
+    app.run(host="0.0.0.0", port=port)
